@@ -2,30 +2,27 @@ package com.example.kiwariandroidtest
 
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import com.google.firebase.auth.FirebaseAuth
-
-import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.toolbar_chat.view.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
+    private lateinit var chatToolbar: Toolbar
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        chatToolbar = findViewById<Toolbar>(R.id.toolbar_chat) as Toolbar
+        setSupportActionBar(chatToolbar)
 
-        if (supportActionBar != null)
-            supportActionBar?.hide()
-        setSupportActionBar(toolbar)
-
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
+        //Edit title to be opponent username
+        chatToolbar.chat_bar_username.text = "Jarjit Singh"
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
