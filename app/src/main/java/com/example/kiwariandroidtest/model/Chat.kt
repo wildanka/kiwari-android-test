@@ -1,4 +1,4 @@
-package com.example.kiwariandroidtest
+package com.example.kiwariandroidtest.model
 
 data class Chat(
     var senderId: String? = null,

@@ -4,25 +4,44 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.example.kiwariandroidtest.adapter.ChatItemAdapter
+import com.example.kiwariandroidtest.model.Chat
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.android.synthetic.main.toolbar_chat.view.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var chatToolbar: Toolbar
+    private lateinit var rvChats: RecyclerView
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         chatToolbar = findViewById<Toolbar>(R.id.toolbar_chat) as Toolbar
         setSupportActionBar(chatToolbar)
+        rvChats = findViewById<RecyclerView>(R.id.rv_chat_list) as RecyclerView
+        val adapter = ChatItemAdapter("123")
+        rvChats.layoutManager = LinearLayoutManager(this)
+        rvChats.adapter = adapter
 
         //Edit title to be opponent username
         chatToolbar.chat_bar_username.text = "Jarjit Singh"
+
+        //create dummy chat data
+        val dummyChats: MutableList<Chat> = mutableListOf()
+        dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
+        dummyChats.add(Chat("456", "halo mail", "12-01-2020"))
+        dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
+        dummyChats.add(Chat("456", "halo mail box", "12-01-2020"))
+        dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
+        dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
+        adapter.setupMessages(dummyChats)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
