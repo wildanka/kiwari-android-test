@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                         FirebaseAuth.getInstance().signOut()
                         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@MainActivity, LoginActivity::class.java)
-                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK
+                        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)
                     }
                 builder.show()
