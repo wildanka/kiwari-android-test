@@ -1,3 +1,22 @@
 <resources>
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="default_activity_horizontal_margin">16dp</dimen>
+    <dimen name="default_activity_vertical_margin">16dp</dimen>
+    <dimen name="default_activity_horizontal_margin_small">8dp</dimen>
+    <dimen name="default_activity_vertical_margin_small">8dp</dimen>
+    <dimen name="default_activity_horizontal_margin_smaller">4dp</dimen>
+    <dimen name="default_activity_vertical_margin_smaller">4dp</dimen>
+    <dimen name="default_activity_horizontal_margin_large">32dp</dimen>
+    <dimen name="default_activity_vertical_margin_large">32dp</dimen>
+    <dimen name="wallet_menu_width">110dp</dimen>
+    <dimen name="activity_horizontal_margin_large">32dp</dimen>
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_horizontal_margin_small">8dp</dimen>
+    <dimen name="activity_horizontal_margin_smaller">4dp</dimen>
+    <dimen name="activity_horizontal_margin_smallest">2dp</dimen>
+    <dimen name="activity_vertical_margin_large">32dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin_small">8dp</dimen>
+    <dimen name="activity_vertical_margin_smaller">4dp</dimen>
+    <dimen name="activity_vertical_margin_smallest">2dp</dimen>
 </resources>

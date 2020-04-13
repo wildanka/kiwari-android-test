@@ -8,4 +8,5 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorPrimaryBackground">#DFE8E5</color>
     <color name="textColorPrimary">#090C0B</color>
+    <color name="textColorSecondary">#1B201E</color>
 </resources>
