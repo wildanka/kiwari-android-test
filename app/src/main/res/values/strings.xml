@@ -13,4 +13,6 @@
     <string name="password">Password</string>
     <string name="kiwari_chat_login">Kiwari Chat Login</string>
     <string name="email">Email</string>
+    <string name="action_logout">Logout</string>
+    <string name="username">Username</string>
 </resources>
