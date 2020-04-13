@@ -3,6 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/rl_chat_messages"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -20,7 +22,7 @@
         android:paddingStart="8dp"
         android:paddingTop="8dp"
         android:paddingEnd="8dp"
-        android:paddingBottom="24dp"
+        android:paddingBottom="8dp"
         android:textAlignment="viewStart"
         android:textColor="@color/textColorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -33,10 +35,9 @@
         android:id="@+id/tv_chat_sent_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="16dp"
-        tools:text="TextView"
+        android:layout_marginEnd="4dp"
         android:textSize="10sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/tv_chat_message" />
+        app:layout_constraintBottom_toBottomOf="@+id/tv_chat_message"
+        app:layout_constraintEnd_toStartOf="@+id/tv_chat_message"
+        tools:text="TextView" />
 </androidx.constraintlayout.widget.ConstraintLayout>

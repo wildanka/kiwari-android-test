@@ -37,10 +37,10 @@ class MainActivity : AppCompatActivity() {
         val dummyChats: MutableList<Chat> = mutableListOf()
         dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
         dummyChats.add(Chat("456", "halo mail", "12-01-2020"))
-        dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
+        dummyChats.add(Chat("123", "halo jarjit, Kemarin paman datang \n pamanku dari desa, dibawakannya buah2an, sayur mayur dan juga ikan", "12-01-2020"))
         dummyChats.add(Chat("456", "halo mail box", "12-01-2020"))
         dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
-        dummyChats.add(Chat("123", "halo jarjit", "12-01-2020"))
+        dummyChats.add(Chat("456", "potong bebek angsa angksa di kuali nona minta dansa dansa di kuali, dua tiga empat lima, habis itu aenam tujuh delapan lah", "12-01-2020"))
         adapter.setupMessages(dummyChats)
     }
 

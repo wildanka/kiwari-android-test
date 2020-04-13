@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.kiwariandroidtest.R
 import com.example.kiwariandroidtest.model.Chat
 
-class ChatItemAdapter(val selfUserId: String) : RecyclerView.Adapter<ChatItemAdapter.ViewHolder>() {
+class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<ChatItemAdapter.ViewHolder>() {
     companion object {
         val VIEW_TYPE_SELF = 1
         val VIEW_TYPE_OPPONENT = 2
@@ -24,11 +24,11 @@ class ChatItemAdapter(val selfUserId: String) : RecyclerView.Adapter<ChatItemAda
         val layoutInflater = LayoutInflater.from(parent.context)
         return when (viewType) {
             VIEW_TYPE_SELF -> {
-                val view = layoutInflater.inflate(R.layout.item_chat_send, null)
+                val view = layoutInflater.inflate(R.layout.item_chat_send, parent, false)
                 SentChatViewHolder(view)
             }
             else -> {
-                val view = layoutInflater.inflate(R.layout.item_chat_received, null)
+                val view = layoutInflater.inflate(R.layout.item_chat_received, parent, false)
                 ReceivedChatViewHolder(view)
             }
         }
@@ -65,8 +65,8 @@ class ChatItemAdapter(val selfUserId: String) : RecyclerView.Adapter<ChatItemAda
     open inner class ViewHolder constructor(itemView: View) : RecyclerView.ViewHolder(itemView)
 
     inner class SentChatViewHolder constructor(itemView: View) : ViewHolder(itemView) {
-        val tvMessages = itemView.findViewById<TextView>(R.id.tv_chat_message)
-        val tvTimestamp = itemView.findViewById<TextView>(R.id.tv_chat_sent_time)
+        private val tvMessages = itemView.findViewById<TextView>(R.id.tv_chat_message)
+        private val tvTimestamp = itemView.findViewById<TextView>(R.id.tv_chat_sent_time)
         fun bind(chat: Chat) {
             tvMessages.text = chat.messages
             tvTimestamp.text = chat.timestamp
@@ -74,8 +74,8 @@ class ChatItemAdapter(val selfUserId: String) : RecyclerView.Adapter<ChatItemAda
     }
 
     inner class ReceivedChatViewHolder(itemView: View) : ViewHolder(itemView) {
-        val tvMessages = itemView.findViewById<TextView>(R.id.tv_chat_message)
-        val tvTimestamp = itemView.findViewById<TextView>(R.id.tv_chat_sent_time)
+        private val tvMessages = itemView.findViewById<TextView>(R.id.tv_chat_message)
+        private val tvTimestamp = itemView.findViewById<TextView>(R.id.tv_chat_sent_time)
         fun bind(chat: Chat) {
             tvMessages.text = chat.messages
             tvTimestamp.text = chat.timestamp
