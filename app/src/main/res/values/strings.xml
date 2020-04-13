@@ -15,4 +15,8 @@
     <string name="email">Email</string>
     <string name="action_logout">Logout</string>
     <string name="username">Username</string>
+    <string name="successfully_logged_in">Successfully Logged In</string>
+    <string name="invalid_password">Invalid password</string>
+    <string name="no_matching_account_found">No matching account found</string>
+    <string name="user_account_has_been_disabled">User account has been disabled</string>
 </resources>

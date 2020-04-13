@@ -10,8 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import com.example.kiwariandroidtest.databinding.ActivityLoginBinding
 import com.example.kiwariandroidtest.util.ValidateString
-import com.google.android.gms.tasks.OnCompleteListener
-import com.google.android.gms.tasks.OnFailureListener
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthInvalidUserException
@@ -89,26 +87,32 @@ class LoginActivity : AppCompatActivity() {
             val resultPassword = ValidateString.validatePassword(password)
             if (resultEmail.status && resultPassword.status) {
                 auth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, OnCompleteListener { task ->
+                    .addOnCompleteListener(this) { task ->
                         if (task.isSuccessful) {
-                            Toast.makeText(this, "Successfully Logged In", Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                this,
+                                getString(R.string.successfully_logged_in),
+                                Toast.LENGTH_SHORT
+                            )
                                 .show()
                             startActivity(Intent(this@LoginActivity, MainActivity::class.java))
                             finish()
                         }
 
-                    })
-                    .addOnFailureListener(OnFailureListener { e ->
+                    }
+                    .addOnFailureListener { e ->
 
                         if (e is FirebaseAuthInvalidCredentialsException) {
-                            binding.tilPassword.error = "Invalid password"
+                            binding.tilPassword.error = getString(R.string.invalid_password)
                         } else if (e is FirebaseAuthInvalidUserException) {
-                            when ((e as FirebaseAuthInvalidUserException).errorCode) {
+                            when (e.errorCode) {
                                 "ERROR_USER_NOT_FOUND" -> {
-                                    binding.tilEmail.error = "No matching account found"
+                                    binding.tilEmail.error =
+                                        getString(R.string.no_matching_account_found)
                                 }
                                 "ERROR_USER_DISABLED" -> {
-                                    binding.tilEmail.error = "User account has been disabled"
+                                    binding.tilEmail.error =
+                                        getString(R.string.user_account_has_been_disabled)
                                 }
                                 else -> {
                                     val err = e.getLocalizedMessage()
@@ -117,7 +121,7 @@ class LoginActivity : AppCompatActivity() {
                                 }
                             }
                         }
-                    })
+                    }
             } else {
                 if (!resultEmail.status) binding.tilEmail.error = resultEmail.message
                 if (!resultPassword.status) binding.tilPassword.error = resultPassword.message
