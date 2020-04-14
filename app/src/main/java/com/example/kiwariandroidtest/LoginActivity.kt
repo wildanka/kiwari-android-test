@@ -93,9 +93,12 @@ class LoginActivity : AppCompatActivity() {
                                 this,
                                 getString(R.string.successfully_logged_in),
                                 Toast.LENGTH_SHORT
-                            )
-                                .show()
-                            startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                            ).show()
+                            val userId = auth.currentUser?.uid
+                            val intent = Intent(this@LoginActivity, MainActivity::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
+                            intent.putExtra("userId",userId)
+                            startActivity(intent)
                             finish()
                         }
 

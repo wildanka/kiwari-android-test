@@ -1,5 +1,6 @@
 package com.example.kiwariandroidtest.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,8 +16,12 @@ class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<Cha
     }
 
     private var chats: MutableList<Chat>? = null
-    fun setupMessages(chat: MutableList<Chat>) {
+    fun setupChats(chat: MutableList<Chat>) {
         this.chats = chat
+        notifyDataSetChanged()
+    }
+    fun addRecentChat(chat: Chat) {
+        this.chats?.add(chat)
         notifyDataSetChanged()
     }
 
@@ -68,6 +73,7 @@ class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<Cha
         private val tvMessages = itemView.findViewById<TextView>(R.id.tv_chat_message)
         private val tvTimestamp = itemView.findViewById<TextView>(R.id.tv_chat_sent_time)
         fun bind(chat: Chat) {
+            Log.e("Sent","selfId : $selfUserId, msg : ${chat.messages}")
             tvMessages.text = chat.messages
             tvTimestamp.text = chat.timestamp
         }
@@ -77,6 +83,7 @@ class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<Cha
         private val tvMessages = itemView.findViewById<TextView>(R.id.tv_chat_message)
         private val tvTimestamp = itemView.findViewById<TextView>(R.id.tv_chat_sent_time)
         fun bind(chat: Chat) {
+            Log.e("Received","selfId : $selfUserId, msg : ${chat.messages}")
             tvMessages.text = chat.messages
             tvTimestamp.text = chat.timestamp
         }
