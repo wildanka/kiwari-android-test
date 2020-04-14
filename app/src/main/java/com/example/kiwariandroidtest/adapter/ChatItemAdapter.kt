@@ -20,10 +20,6 @@ class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<Cha
         this.chats = chat
         notifyDataSetChanged()
     }
-    fun addRecentChat(chat: Chat) {
-        this.chats?.add(chat)
-        notifyDataSetChanged()
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)

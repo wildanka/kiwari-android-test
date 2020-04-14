@@ -11,9 +11,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.example.kiwariandroidtest.adapter.ChatItemAdapter
 import com.example.kiwariandroidtest.databinding.ActivityMainBinding
 import com.example.kiwariandroidtest.model.Chat
+import com.example.kiwariandroidtest.model.ChatParticipant
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
@@ -21,56 +23,55 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.toolbar_chat.view.*
+import kotlin.coroutines.suspendCoroutine
 
 class MainActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
+
     private val auth = FirebaseAuth.getInstance()
-    private val fireStore = FirebaseFirestore.getInstance()
     private val db = FirebaseDatabase.getInstance()
+    private val fireStore = FirebaseFirestore.getInstance()
+    private val chatList: MutableList<Chat> = mutableListOf()
 
     private lateinit var userId: String
+    private lateinit var opponentId: String
     private lateinit var binding: ActivityMainBinding
-
+    private lateinit var adapter: ChatItemAdapter
     private lateinit var mChatDatabaseReference: DatabaseReference
-    private lateinit var adapter : ChatItemAdapter
+    private lateinit var dbParticipantReference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
         val chatToolbar = findViewById<Toolbar>(R.id.toolbar_chat) as Toolbar
         setSupportActionBar(chatToolbar)
 
         //get User Id
         userId = intent.extras?.getString("userId") ?: "user1"
 
+        //Edit title to be opponent username
+        dbParticipantReference = Firebase.database.reference.child("participant")
+        dbParticipantReference.addListenerForSingleValueEvent(participantEventListener)
+        binding.toolbarChat.chat_bar_username.text = "Friends Username"
 
+        //fetch chat history
         mChatDatabaseReference = Firebase.database.reference.child("chats")
-        mChatDatabaseReference.addListenerForSingleValueEvent(chatFirstListener)
         mChatDatabaseReference.addChildEventListener(chatEventListener)
-
-        //fetch the data from the chatroom collection, we hardcoded it since the scenario is the user already on a private chatroom
-//        /chatroom/UN4IF7Hwle1Db7DnLqd4
-
-        Toast.makeText(this, "userId : $userId", Toast.LENGTH_SHORT).show()
 
         adapter = ChatItemAdapter(userId)
         binding.contentMain.rvChatList.layoutManager = LinearLayoutManager(this)
         binding.contentMain.rvChatList.adapter = adapter
 
-        //Edit title to be opponent username
-        binding.toolbarChat.chat_bar_username.text = "Jarjit Singh"
 
         binding.contentMain.fabSendChat.setOnClickListener {
             val messageText = binding.contentMain.etChat.text.toString().trim()
-
             if (messageText.isNotEmpty()) {
                 sendMessage(messageText, userId, "idJarjit")
                 binding.contentMain.etChat.setText("")
             }
         }
 
-
-//        adapter.setupMessages(dummyChats)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -93,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                     .setNegativeButton(android.R.string.no) { _, _ ->
                         Toast.makeText(this, "Logout Cancelled", Toast.LENGTH_SHORT).show()
                     }.setPositiveButton("Yes") { _, _ ->
-                        FirebaseAuth.getInstance().signOut()
+                        auth.signOut()
                         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
                         val intent = Intent(this@MainActivity, LoginActivity::class.java)
                         intent.flags =
@@ -107,8 +108,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun sendMessage(messageText: String, userId: String, opponentId: String) {
-        val databaseReference = FirebaseDatabase.getInstance().reference
+    private fun sendMessage(messageText: String, userId: String, opponentId: String) {
+        val databaseReference = db.reference
         val chat = Chat(
             userId,
             opponentId,
@@ -125,8 +126,8 @@ class MainActivity : AppCompatActivity() {
             // A new comment has been added, add it to the displayed list
             val chat = dataSnapshot.getValue<Chat>()
             Log.d(TAG, "onChildAdded value:" + chat?.messages)
-
-            chat?.let { adapter.addRecentChat(it) }
+            chat?.let { chatList.add(it) }
+            adapter.setupChats(chatList)
         }
 
         override fun onChildRemoved(p0: DataSnapshot) {
@@ -137,38 +138,54 @@ class MainActivity : AppCompatActivity() {
 
         override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
             Log.d(TAG, "onChildChanged: ${dataSnapshot.key}")
-
-            // A comment has changed, use the key to determine if we are displaying this
-            // comment and if so displayed the changed comment.
-            val newComment = dataSnapshot.getValue<Chat>()
-            val commentKey = dataSnapshot.key
-
-            // ...
         }
 
         override fun onCancelled(databaseError: DatabaseError) {
             Log.w(TAG, "postComments:onCancelled", databaseError.toException())
-            Toast.makeText(this@MainActivity, "Failed to load comments.",
-                Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                this@MainActivity, "Failed to load comments.",
+                Toast.LENGTH_SHORT
+            ).show()
         }
-
     }
 
-    private val chatFirstListener = object : ValueEventListener {
-        override fun onCancelled(p0: DatabaseError) {
+    private val participantEventListener = object : ValueEventListener {
+        override fun onCancelled(databaseError: DatabaseError) {
+            Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
         }
 
         override fun onDataChange(dataSnapshot: DataSnapshot) {
-            val chatList: MutableList<Chat> = mutableListOf()
-            for (snapshot in dataSnapshot.children){
-                val chat = snapshot.getValue<Chat>()
-                println("ini ${chat?.messages}")
-                chat?.let { chatList.add(it) }
+            val participant = dataSnapshot.getValue(ChatParticipant::class.java)
+            Log.e(
+                TAG,
+                "participant0 ${participant?.participant0} dan participant1 ${participant?.participant1}"
+            )
+
+            opponentId = if (userId == participant?.participant0) {
+                participant.participant1.toString()
+            } else {
+                participant?.participant0.toString()
             }
-
-            adapter.setupChats(chatList)
+            loadOpponentProfile(opponentId)
         }
+    }
 
+    private fun loadOpponentProfile(opponentId: String){
+        //search opponent ID
+        val userReference = fireStore.collection("users").document(opponentId)
+        userReference.get()
+            .addOnSuccessListener {
+                if(it.exists()){
+                    binding.toolbarChat.chat_bar_username.text = it.get("name").toString()
+                    Glide.with(this@MainActivity).load(it.get("avatar").toString()).into(binding.toolbarChat.chat_bar_avatar)
+                }else{
+                    Toast.makeText(this@MainActivity, "Opponent profile not found", Toast.LENGTH_SHORT).show()
+                }
+            }
+            .addOnFailureListener {
+                Log.e("ERROR", "pedah ieu : ${it.localizedMessage}")
+                Toast.makeText(this@MainActivity, "Error caused by \n ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
+            }
     }
 
 }
