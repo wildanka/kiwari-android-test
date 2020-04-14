@@ -16,11 +16,24 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?attr/colorPrimary"
-            app:popupTheme="@style/AppTheme.PopupOverlay" />
+            app:popupTheme="@style/AppTheme.PopupOverlay" >
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/iv_opponent_user_avatar"
+                android:src="@mipmap/ic_launcher_round"
+                android:layout_width="52dp"
+                android:layout_height="52dp"/>
+            <TextView
+                android:id="@+id/tv_opponent_username"
+                android:text="Username"
+                android:textStyle="bold"
+                android:layout_marginLeft="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+        </androidx.appcompat.widget.Toolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/content_main" android:id="@+id/content_main" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
