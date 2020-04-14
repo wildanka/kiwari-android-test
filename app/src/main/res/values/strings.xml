@@ -20,4 +20,5 @@
     <string name="no_matching_account_found">No matching account found</string>
     <string name="user_account_has_been_disabled">User account has been disabled</string>
     <string name="type_a_message">Type a message</string>
+    <string name="default_username">Friends Username</string>
 </resources>

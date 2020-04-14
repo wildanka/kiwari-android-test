@@ -14,6 +14,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="108dp"
             android:text="@string/kiwari_chat_login"
+            android:textStyle="bold"
+            android:textSize="32dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
@@ -46,7 +48,6 @@
             android:layout_marginStart="24dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="24dp"
-            android:inputType="textPassword"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/til_email"
@@ -56,6 +57,7 @@
                 android:id="@+id/et_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textPassword"
                 android:hint="@string/password"
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>

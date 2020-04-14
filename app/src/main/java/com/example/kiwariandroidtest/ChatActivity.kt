@@ -23,9 +23,11 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.toolbar_chat.view.*
-import kotlin.coroutines.suspendCoroutine
+import java.time.Instant
+import java.time.format.DateTimeFormatter
+import java.util.*
 
-class MainActivity : AppCompatActivity() {
+class ChatActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
     private val auth = FirebaseAuth.getInstance()
@@ -53,7 +55,8 @@ class MainActivity : AppCompatActivity() {
         //Edit title to be opponent username
         dbParticipantReference = Firebase.database.reference.child("participant")
         dbParticipantReference.addListenerForSingleValueEvent(participantEventListener)
-        binding.toolbarChat.chat_bar_username.text = "Friends Username"
+        opponentId = "opponentId"
+        binding.toolbarChat.chat_bar_username.text = getString(R.string.default_username)
 
         //fetch chat history
         mChatDatabaseReference = Firebase.database.reference.child("chats")
@@ -67,7 +70,7 @@ class MainActivity : AppCompatActivity() {
         binding.contentMain.fabSendChat.setOnClickListener {
             val messageText = binding.contentMain.etChat.text.toString().trim()
             if (messageText.isNotEmpty()) {
-                sendMessage(messageText, userId, "idJarjit")
+                sendMessage(messageText, userId, opponentId)
                 binding.contentMain.etChat.setText("")
             }
         }
@@ -96,7 +99,7 @@ class MainActivity : AppCompatActivity() {
                     }.setPositiveButton("Yes") { _, _ ->
                         auth.signOut()
                         Toast.makeText(this, "Logged out successfully", Toast.LENGTH_SHORT).show()
-                        val intent = Intent(this@MainActivity, LoginActivity::class.java)
+                        val intent = Intent(this@ChatActivity, LoginActivity::class.java)
                         intent.flags =
                             Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK
                         startActivity(intent)
@@ -114,7 +117,7 @@ class MainActivity : AppCompatActivity() {
             userId,
             opponentId,
             messageText,
-            "10:25"
+            System.currentTimeMillis()
         )
         databaseReference.child("chats").push().setValue(chat)
     }
@@ -143,7 +146,7 @@ class MainActivity : AppCompatActivity() {
         override fun onCancelled(databaseError: DatabaseError) {
             Log.w(TAG, "postComments:onCancelled", databaseError.toException())
             Toast.makeText(
-                this@MainActivity, "Failed to load comments.",
+                this@ChatActivity, "Failed to load comments.",
                 Toast.LENGTH_SHORT
             ).show()
         }
@@ -156,10 +159,6 @@ class MainActivity : AppCompatActivity() {
 
         override fun onDataChange(dataSnapshot: DataSnapshot) {
             val participant = dataSnapshot.getValue(ChatParticipant::class.java)
-            Log.e(
-                TAG,
-                "participant0 ${participant?.participant0} dan participant1 ${participant?.participant1}"
-            )
 
             opponentId = if (userId == participant?.participant0) {
                 participant.participant1.toString()
@@ -177,14 +176,13 @@ class MainActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 if(it.exists()){
                     binding.toolbarChat.chat_bar_username.text = it.get("name").toString()
-                    Glide.with(this@MainActivity).load(it.get("avatar").toString()).into(binding.toolbarChat.chat_bar_avatar)
+                    Glide.with(this@ChatActivity).load(it.get("avatar").toString()).into(binding.toolbarChat.chat_bar_avatar)
                 }else{
-                    Toast.makeText(this@MainActivity, "Opponent profile not found", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@ChatActivity, "Opponent profile not found", Toast.LENGTH_SHORT).show()
                 }
             }
             .addOnFailureListener {
-                Log.e("ERROR", "pedah ieu : ${it.localizedMessage}")
-                Toast.makeText(this@MainActivity, "Error caused by \n ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@ChatActivity, "Error caused by \n ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
             }
     }
 

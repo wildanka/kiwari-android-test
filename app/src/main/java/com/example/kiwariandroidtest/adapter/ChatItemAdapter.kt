@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.kiwariandroidtest.R
 import com.example.kiwariandroidtest.model.Chat
+import com.example.kiwariandroidtest.util.TimeHelper
 
 class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<ChatItemAdapter.ViewHolder>() {
     companion object {
@@ -71,7 +72,7 @@ class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<Cha
         fun bind(chat: Chat) {
             Log.e("Sent","selfId : $selfUserId, msg : ${chat.messages}")
             tvMessages.text = chat.messages
-            tvTimestamp.text = chat.timestamp
+            tvTimestamp.text = chat.timestamp?.let { TimeHelper.convertLongToTime(it) }
         }
     }
 
@@ -81,7 +82,7 @@ class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<Cha
         fun bind(chat: Chat) {
             Log.e("Received","selfId : $selfUserId, msg : ${chat.messages}")
             tvMessages.text = chat.messages
-            tvTimestamp.text = chat.timestamp
+            tvTimestamp.text = chat.timestamp?.let { TimeHelper.convertLongToTime(it) }
         }
     }
     //endregion viewHolder
