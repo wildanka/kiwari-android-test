@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "538765993716",
+    "firebase_url": "https://kiwaritest-1.firebaseio.com",
+    "project_id": "kiwaritest-1",
+    "storage_bucket": "kiwaritest-1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:538765993716:android:47b081f16183cae78a20a1",
+        "android_client_info": {
+          "package_name": "com.example.kiwariandroidtest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "538765993716-p5gmlitb92952gela133nnt6485gtgg3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDXktoehJN2XbMgPJHBwd1WAzt77K4oKeA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "538765993716-p5gmlitb92952gela133nnt6485gtgg3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
