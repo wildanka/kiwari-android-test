@@ -10,12 +10,12 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.example.kiwariandroidtest.adapter.ChatItemAdapter
 import com.example.kiwariandroidtest.databinding.ActivityMainBinding
 import com.example.kiwariandroidtest.model.Chat
-import com.example.kiwariandroidtest.model.ChatParticipant
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
@@ -23,13 +23,12 @@ import com.google.firebase.database.ktx.getValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.toolbar_chat.view.*
-import java.time.Instant
-import java.time.format.DateTimeFormatter
-import java.util.*
+
 
 class ChatActivity : AppCompatActivity() {
     private val TAG = "MainActivity"
 
+    private lateinit var viewModel: ChatViewModel
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseDatabase.getInstance()
     private val fireStore = FirebaseFirestore.getInstance()
@@ -40,11 +39,13 @@ class ChatActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: ChatItemAdapter
     private lateinit var mChatDatabaseReference: DatabaseReference
-    private lateinit var dbParticipantReference: DatabaseReference
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
+        viewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
+        val liveDataParticipant = viewModel.getDataSnapshotLiveData()
 
         val chatToolbar = findViewById<Toolbar>(R.id.toolbar_chat) as Toolbar
         setSupportActionBar(chatToolbar)
@@ -53,10 +54,20 @@ class ChatActivity : AppCompatActivity() {
         userId = intent.extras?.getString("userId") ?: "user1"
 
         //Edit title to be opponent username
-        dbParticipantReference = Firebase.database.reference.child("participant")
-        dbParticipantReference.addListenerForSingleValueEvent(participantEventListener)
         opponentId = "opponentId"
         binding.toolbarChat.chat_bar_username.text = getString(R.string.default_username)
+
+        liveDataParticipant.observe(this, androidx.lifecycle.Observer {
+            if (it != null) { // update the UI here with values in the snapshot
+                Log.e(TAG,"participant 0 : ${it.participant0}")
+                opponentId = if (userId == it.participant0) {
+                    it.participant1.toString()
+                } else {
+                    it.participant0.toString()
+                }
+                loadOpponentProfile(opponentId)
+            }
+        })
 
         //fetch chat history
         mChatDatabaseReference = Firebase.database.reference.child("chats")
@@ -152,37 +163,29 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-    private val participantEventListener = object : ValueEventListener {
-        override fun onCancelled(databaseError: DatabaseError) {
-            Log.w(TAG, "loadPost:onCancelled", databaseError.toException())
-        }
-
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-            val participant = dataSnapshot.getValue(ChatParticipant::class.java)
-
-            opponentId = if (userId == participant?.participant0) {
-                participant.participant1.toString()
-            } else {
-                participant?.participant0.toString()
-            }
-            loadOpponentProfile(opponentId)
-        }
-    }
-
     private fun loadOpponentProfile(opponentId: String){
         //search opponent ID
         val userReference = fireStore.collection("users").document(opponentId)
         userReference.get()
             .addOnSuccessListener {
-                if(it.exists()){
+                if (it.exists()) {
                     binding.toolbarChat.chat_bar_username.text = it.get("name").toString()
-                    Glide.with(this@ChatActivity).load(it.get("avatar").toString()).into(binding.toolbarChat.chat_bar_avatar)
-                }else{
-                    Toast.makeText(this@ChatActivity, "Opponent profile not found", Toast.LENGTH_SHORT).show()
+                    Glide.with(this@ChatActivity).load(it.get("avatar").toString())
+                        .into(binding.toolbarChat.chat_bar_avatar)
+                } else {
+                    Toast.makeText(
+                        this@ChatActivity,
+                        "Opponent profile not found",
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
             .addOnFailureListener {
-                Toast.makeText(this@ChatActivity, "Error caused by \n ${it.localizedMessage}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@ChatActivity,
+                    "Error caused by \n ${it.localizedMessage}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
     }
 
