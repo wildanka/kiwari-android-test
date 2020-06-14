@@ -10,6 +10,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -17,22 +18,18 @@ import com.example.kiwariandroidtest.adapter.ChatItemAdapter
 import com.example.kiwariandroidtest.databinding.ActivityMainBinding
 import com.example.kiwariandroidtest.model.Chat
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.*
-import com.google.firebase.database.ktx.database
-import com.google.firebase.database.ktx.getValue
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.ktx.Firebase
 import kotlinx.android.synthetic.main.toolbar_chat.view.*
 
 
 class ChatActivity : AppCompatActivity() {
-    private val TAG = "MainActivity"
 
     private lateinit var viewModel: ChatViewModel
     private val auth = FirebaseAuth.getInstance()
     private val db = FirebaseDatabase.getInstance()
     private val fireStore = FirebaseFirestore.getInstance()
-    private val chatList: MutableList<Chat> = mutableListOf()
 
     private lateinit var userId: String
     private lateinit var opponentId: String
@@ -45,9 +42,10 @@ class ChatActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         viewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
-        val liveDataParticipant = viewModel.getDataSnapshotLiveData()
+        val liveDataParticipant = viewModel.getChatParticipantSnapshotLiveData()
+        val chatLiveData = viewModel.getChatsLiveData()
 
-        val chatToolbar = findViewById<Toolbar>(R.id.toolbar_chat) as Toolbar
+        val chatToolbar = findViewById<Toolbar>(R.id.toolbar_chat)
         setSupportActionBar(chatToolbar)
 
         //get User Id
@@ -57,7 +55,7 @@ class ChatActivity : AppCompatActivity() {
         opponentId = "opponentId"
         binding.toolbarChat.chat_bar_username.text = getString(R.string.default_username)
 
-        liveDataParticipant.observe(this, androidx.lifecycle.Observer {
+        liveDataParticipant.observe(this, Observer {
             if (it != null) { // update the UI here with values in the snapshot
                 Log.e(TAG,"participant 0 : ${it.participant0}")
                 opponentId = if (userId == it.participant0) {
@@ -70,9 +68,13 @@ class ChatActivity : AppCompatActivity() {
         })
 
         //fetch chat history
-        mChatDatabaseReference = Firebase.database.reference.child("chats")
-        mChatDatabaseReference.addChildEventListener(chatEventListener)
-
+        chatLiveData?.observe(this, Observer {
+            Log.e(TAG, "chatLiveDataObserver ${it.toString()}")
+            if (it != null) { // update the UI here with values in the snapshot
+                Log.e(TAG,"chat lists contain 0 : ${it[0].messages}")
+                adapter.setupChats(it)
+            }
+        })
         adapter = ChatItemAdapter(userId)
         binding.contentMain.rvChatList.layoutManager = LinearLayoutManager(this)
         binding.contentMain.rvChatList.adapter = adapter
@@ -133,36 +135,6 @@ class ChatActivity : AppCompatActivity() {
         databaseReference.child("chats").push().setValue(chat)
     }
 
-    private val chatEventListener = object : ChildEventListener {
-        override fun onChildAdded(dataSnapshot: DataSnapshot, previousChildName: String?) {
-            Log.d(TAG, "onChildAdded:" + dataSnapshot.key!!)
-
-            // A new comment has been added, add it to the displayed list
-            val chat = dataSnapshot.getValue<Chat>()
-            Log.d(TAG, "onChildAdded value:" + chat?.messages)
-            chat?.let { chatList.add(it) }
-            adapter.setupChats(chatList)
-        }
-
-        override fun onChildRemoved(p0: DataSnapshot) {
-        }
-
-        override fun onChildMoved(p0: DataSnapshot, p1: String?) {
-        }
-
-        override fun onChildChanged(dataSnapshot: DataSnapshot, previousChildName: String?) {
-            Log.d(TAG, "onChildChanged: ${dataSnapshot.key}")
-        }
-
-        override fun onCancelled(databaseError: DatabaseError) {
-            Log.w(TAG, "postComments:onCancelled", databaseError.toException())
-            Toast.makeText(
-                this@ChatActivity, "Failed to load comments.",
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     private fun loadOpponentProfile(opponentId: String){
         //search opponent ID
         val userReference = fireStore.collection("users").document(opponentId)
@@ -187,6 +159,10 @@ class ChatActivity : AppCompatActivity() {
                     Toast.LENGTH_SHORT
                 ).show()
             }
+    }
+
+    companion object {
+        private const val TAG = "MainActivity"
     }
 
 }

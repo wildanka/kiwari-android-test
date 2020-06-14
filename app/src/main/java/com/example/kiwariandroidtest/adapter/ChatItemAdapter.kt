@@ -16,8 +16,8 @@ class ChatItemAdapter(private val selfUserId: String) : RecyclerView.Adapter<Cha
         val VIEW_TYPE_OPPONENT = 2
     }
 
-    private var chats: MutableList<Chat>? = null
-    fun setupChats(chat: MutableList<Chat>) {
+    private var chats: List<Chat>? = null
+    fun setupChats(chat: List<Chat>) {
         this.chats = chat
         notifyDataSetChanged()
     }
